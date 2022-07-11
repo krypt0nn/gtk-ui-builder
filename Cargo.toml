@@ -1,6 +1,6 @@
 [package]
 name = "gtk-ui-builder"
-version = "0.1.0"
+version = "0.1.1"
 description = " A Rust library to parse Blueprint files and convert them into GTK UI files"
 keywords = ["gtk", "gui"]
 authors = ["Nikita Podvirnyy <suimin.tu.mu.ga.mi@gmail.com>"]
