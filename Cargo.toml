@@ -8,3 +8,9 @@ license = "GPL-3.0"
 readme = "README.md"
 repository = "https://github.com/krypt0nn/gtk-ui-builder"
 edition = "2021"
+
+[dependencies]
+gtk4 = { version = "0.4", optional = true }
+
+[features]
+gtk-builder = ["dep:gtk4"]

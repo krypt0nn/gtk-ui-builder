@@ -4,7 +4,7 @@ A Rust library to parse Blueprint files and convert them into GTK UI files
 
 Inspired by the [Blueprint](https://gitlab.gnome.org/jwestman/blueprint-compiler) project
 
-## Example
+## Blueprint file
 
 ```
 using Gtk 4.0;
@@ -37,6 +37,8 @@ Adw.ApplicationWindow window {
 }
 ```
 
+## Translation into XML format
+
 ```rs
 use gtk_ui_builder::prelude::*;
 
@@ -58,6 +60,40 @@ fn main() {
     // Write this representation to the file
     // now you can import it as any GTK UI file
     std::fs::write("assets/ui/main.ui", &ui);
+}
+```
+
+## Importing blueprint in GTK app
+
+```rs
+// We're using gtk-builder feature here
+use gtk_ui_builder::prelude::*;
+
+fn main() {
+    gtk4::init().expect("GTK initialization failed");
+    libadwaita::init();
+
+    // Create app
+    let application = gtk::Application::new(
+        Some("com.github.krypt0nn.gtk-ui-builder"),
+        Default::default()
+    );
+
+    // Init app window and show it
+    application.connect_activate(|app| {
+        // You also can parse blueprint with Parser::parse
+        // and then use it in gtk4::Builder
+        let builder = Builder::new(include_str!("../assets/ui/main.blp"))
+            .expect("Failed to parse blueprint");
+
+        let window = builder.object::<adw::ApplicationWindow>("window").unwrap();
+
+        window.set_application(Some(app));
+        window.show();
+    });
+
+    // Run app
+    application.run();
 }
 ```
 
