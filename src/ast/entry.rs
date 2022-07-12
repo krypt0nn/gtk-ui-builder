@@ -4,7 +4,10 @@ use super::entries::prelude::*;
 pub enum Entry {
     Root(Root),
     Object(Object),
-    Property(Property)
+    Property(Property),
+
+    #[cfg(feature = "rhai-events")]
+    RhaiEvent(RhaiEvent)
 }
 
 impl Entry {
@@ -12,7 +15,10 @@ impl Entry {
         match self {
             Self::Root(obj) => obj.dbg(),
             Self::Object(obj) => obj.dbg(),
-            Self::Property(obj) => obj.dbg()
+            Self::Property(obj) => obj.dbg(),
+
+            #[cfg(feature = "rhai-events")]
+            Self::RhaiEvent(obj) => obj.dbg()
         }
     }
 
@@ -20,7 +26,10 @@ impl Entry {
         match self {
             Self::Root(obj) => obj.get_xml(),
             Self::Object(obj) => obj.get_xml(),
-            Self::Property(obj) => obj.get_xml()
+            Self::Property(obj) => obj.get_xml(),
+
+            #[cfg(feature = "rhai-events")]
+            Self::RhaiEvent(obj) => obj.get_xml()
         }
     }
 }

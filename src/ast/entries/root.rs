@@ -76,4 +76,61 @@ impl Root {
             (&self.children).into_iter().map(|item| item.get_xml()).collect::<String>()
         )
     }
+
+    pub fn filter<T: Fn(&Entry) -> Option<F>, F>(&self, filter: &T) -> Vec<F> {
+        fn filter_entries<T: Fn(&Entry) -> Option<F>, F>(entries: &Vec<Entry>, filter: &T) -> Vec<F> {
+            let mut filtered = Vec::new();
+
+            for entry in entries {
+                if let Some(found) = filter(entry) {
+                    filtered.push(found);
+                }
+
+                match entry {
+                    Entry::Object(obj) => filtered.append(&mut filter_entries(&obj.children, filter)),
+                    Entry::Property(prop) => {
+                        if let super::property::PropertyValue::Entry(obj) = &prop.value {
+                            if let Some(found) = filter(&Entry::Object(obj.clone())) {
+                                filtered.push(found);
+                            }
+
+                            filtered.append(&mut filter_entries(&obj.children, filter));
+                        }
+                    }
+                    _ => ()
+                }
+            }
+
+            filtered
+        }
+
+        filter_entries(&self.children, filter)
+    }
+
+    pub fn get_named_objects(&self) -> Vec<(String, super::object::Object)> {
+        self.filter(&|entry| {
+            match entry {
+                Entry::Object(obj) => {
+                    if let Some(name) = &obj.name {
+                        Some((name.clone(), obj.clone()))
+                    }
+
+                    else {
+                        None
+                    }
+                },
+                _ => None
+            }
+        })
+    }
+
+    #[cfg(feature = "rhai-events")]
+    pub fn get_rhai_events(&self) -> Vec<super::rhai_event::RhaiEvent> {
+        self.filter(&|entry| {
+            match entry {
+                Entry::RhaiEvent(event) => Some(event.clone()),
+                _ => None
+            }
+        })
+    }
 }

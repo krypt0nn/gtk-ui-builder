@@ -1,7 +1,7 @@
 use super::entry::Entry;
 use super::entries::prelude::*;
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct Tree {
     pub root: Root
 }

@@ -4,6 +4,8 @@ A Rust library to parse Blueprint files and convert them into GTK UI files
 
 Inspired by the [Blueprint](https://gitlab.gnome.org/jwestman/blueprint-compiler) project
 
+# Example 1 - blueprints translation
+
 ## Blueprint file
 
 ```
@@ -96,6 +98,45 @@ fn main() {
     application.run();
 }
 ```
+
+# Example 2 - rhai events integration
+
+```
+using Gtk 4.0;
+using Adw 1;
+
+Adw.ApplicationWindow window {
+    default-width: 600;
+    default-height: 500;
+
+    content: Gtk.Box {
+        orientation: vertical;
+
+        Adw.HeaderBar {
+            title-widget: Adw.WindowTitle window_title {
+                title: "Example app";
+            };
+        }
+
+        Adw.PreferencesPage {
+            Adw.PreferencesGroup {
+                vexpand: true;
+                valign: center;
+
+                Gtk.Button {
+                    label: "Hello, World!";
+
+                    clicked => {
+                        window_title.set_str("title", "Button clicked: " + self.get_str("label"));
+                    }
+                }
+            }
+        }
+    };
+}
+```
+
+This example requires `rhai-events` for parsing and `gtk-builder` for interpreting. Events are automatically applied by the `Builder` struct
 
 Author: [Nikita Podvirnyy](https://vk.com/technomindlp)
 

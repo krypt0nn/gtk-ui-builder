@@ -41,10 +41,18 @@ impl Object {
             None => format!("<object class=\"{}\">", class)
         };
 
+        let mut signals = String::new();
         let mut properties = String::new();
         let mut children = String::new();
 
         for child in &self.children {
+            #[cfg(feature = "rhai-events")]
+            if let Entry::RhaiEvent(event) = child {
+                signals += &event.get_xml();
+
+                continue;
+            }
+            
             if let Entry::Property(property) = child {
                 properties += &property.get_xml();
             }
@@ -54,6 +62,6 @@ impl Object {
             }
         }
 
-        format!("{}{}{}</object>", beginning, properties, children)
+        format!("{}{}{}{}</object>", beginning, signals, properties, children)
     }
 }

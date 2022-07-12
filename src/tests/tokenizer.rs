@@ -1,6 +1,7 @@
 use crate::parser::prelude::*;
 
-#[test]
+// As for now we don't check it
+/*#[test]
 fn check_allowed_chars_tokenizing() {
     assert_eq!(Tokenizer::parse("hi;"), Ok(vec![
         Token::Other { begin: 0, end: 2, value: String::from("hi;") }
@@ -13,7 +14,7 @@ fn check_allowed_chars_tokenizing() {
     else {
         assert!(false);
     }
-}
+}*/
 
 #[test]
 fn check_other_tokenizing() {
@@ -88,15 +89,26 @@ fn check_brackets_tokenizing() {
             ] }
         ] }
     ]));
+
+    assert_eq!(Tokenizer::parse("\n  event => {\n      print!(\"sus\");\n  }\n\n"), Ok(vec![
+        Token::Other { begin: 3, end: 7, value: String::from("event") },
+        Token::Other { begin: 9, end: 10, value: String::from("=>") },
+        Token::CurlyBrackets { begin: 12, end: 37, tokens: vec![
+            Token::Other { begin: 20, end: 25, value: String::from("print!") },
+            Token::Parentheses { begin: 26, end: 32, tokens: vec![
+                Token::Text { begin: 27, end: 31, value: String::from("sus") }
+            ] },
+            Token::Other { begin: 33, end: 33, value: String::from(";") }
+        ] }
+    ]));
 }
 
-#[test]
+// As for now we don't use this error
+/*#[test]
 fn check_incorrect_char_error_tokenizing() {
-    if let Err(TokenizeError::IncorrectChar { .. }) = Tokenizer::parse("Incorrect\"character") { assert!(true); } else { assert!(false); }
-    if let Err(TokenizeError::IncorrectChar { .. }) = Tokenizer::parse("Hi!")                  { assert!(true); } else { assert!(false); }
-    if let Err(TokenizeError::IncorrectChar { .. }) = Tokenizer::parse("Incorrect[")           { assert!(true); } else { assert!(false); }
-    if let Err(TokenizeError::IncorrectChar { .. }) = Tokenizer::parse(")")                    { assert!(true); } else { assert!(false); }
-}
+    if let Err(TokenizeError::IncorrectChar { .. }) = Tokenizer::parse(")")   { assert!(true); } else { assert!(false); }
+    if let Err(TokenizeError::IncorrectChar { .. }) = Tokenizer::parse("$Hi") { assert!(true); } else { assert!(false); }
+}*/
 
 #[test]
 fn check_incorrect_string_error_tokenizing() {
@@ -106,8 +118,9 @@ fn check_incorrect_string_error_tokenizing() {
 
 #[test]
 fn check_incorrect_brackets_error_tokenizing() {
-    if let Err(TokenizeError::IncorrectBrackets { .. }) = Tokenizer::parse("Hi\r[(){]") { assert!(true); } else { assert!(false); }
-    if let Err(TokenizeError::IncorrectBrackets { .. }) = Tokenizer::parse("[)")        { assert!(true); } else { assert!(false); }
+    if let Err(TokenizeError::IncorrectBrackets { .. }) = Tokenizer::parse("Hi\r[(){]")  { assert!(true); } else { assert!(false); }
+    if let Err(TokenizeError::IncorrectBrackets { .. }) = Tokenizer::parse("[)")         { assert!(true); } else { assert!(false); }
+    if let Err(TokenizeError::IncorrectBrackets { .. }) = Tokenizer::parse("Incorrect[") { assert!(true); } else { assert!(false); }
 }
 
 #[test]

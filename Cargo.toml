@@ -1,6 +1,6 @@
 [package]
 name = "gtk-ui-builder"
-version = "0.1.1"
+version = "0.2.0"
 description = " A Rust library to parse Blueprint files and convert them into GTK UI files"
 keywords = ["gtk", "gui"]
 authors = ["Nikita Podvirnyy <suimin.tu.mu.ga.mi@gmail.com>"]
@@ -11,6 +11,8 @@ edition = "2021"
 
 [dependencies]
 gtk4 = { version = "0.4", optional = true }
+rhai = { version = "1.8.0", optional = true }
 
 [features]
 gtk-builder = ["dep:gtk4"]
+rhai-events = ["dep:rhai"]

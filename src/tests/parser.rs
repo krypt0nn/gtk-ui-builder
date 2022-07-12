@@ -85,10 +85,6 @@ fn check_properties_error() {
     let tree = Parser::parse("example-property: example-value");
 
     if let Err(ParseError::IncorrectPropertyDefinition { .. }) = tree { assert!(true); } else { assert!(false); }
-
-    let tree = Parser::parse("example-property: example-value ;");
-
-    if let Err(ParseError::TokenizeError(_)) = tree { assert!(true); } else { assert!(false); }
 }
 
 #[test]

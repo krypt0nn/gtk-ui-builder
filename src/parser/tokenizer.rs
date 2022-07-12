@@ -53,13 +53,16 @@ impl Tokenizer {
 
             // Parse string
             else if text[i] == '"' {
-                // Return Err if word is not empty (some_text"another_text)
+                // Save not empty word as Other token
                 if !word.is_empty() {
-                    return Err(TokenizeError::IncorrectChar {
-                        message: format!("Incorrect character ({}) found at offset {}", text[i], i),
-                        wrong_string: word,
-                        offset: i
+                    tokens.push(Token::Other {
+                        begin: token_begin,
+                        end: i - 1,
+                        value: word
                     });
+
+                    token_begin = i;
+                    word = String::new();
                 }
 
                 let mut correct_str = false;
@@ -102,13 +105,16 @@ impl Tokenizer {
 
             // Parse brackets
             else if text[i] == '(' || text[i] == '[' || text[i] == '{' {
-                // Return Err if word is not empty (some_text[another_text)
+                // Save not empty word as Other token
                 if !word.is_empty() {
-                    return Err(TokenizeError::IncorrectChar {
-                        message: format!("Incorrect character ({}) found at offset {}", text[i], i),
-                        wrong_string: word,
-                        offset: i
+                    tokens.push(Token::Other {
+                        begin: token_begin,
+                        end: i - 1,
+                        value: word
                     });
+
+                    token_begin = i;
+                    word = String::new();
                 }
 
                 let mut brackets_stack = VecDeque::from([text[i]]);
@@ -164,18 +170,18 @@ impl Tokenizer {
             // There may be a situation like {}; where ; will be parsed as Other
             // while {} as CurlyBrackets, so technically ; will be the first character. This is wrong
             // so we need check previous character
-            else if Self::is_normal_char(text[i], word.is_empty() && (if i > 0 { text[i - 1].is_whitespace() } else { true })) {
+            else { /* if Self::is_normal_char(text[i], word.is_empty() && (if i > 0 { text[i - 1].is_whitespace() } else { true })) {*/
                 word.push(text[i]);
             }
 
             // Wrong Other token character
-            else {
+            /*else {
                 return Err(TokenizeError::IncorrectChar {
                     message: format!("Incorrect character ({}) found at offset {}", text[i], i),
                     wrong_string: word,
                     offset: i
                 });
-            }
+            }*/
 
             i += 1;
         }
@@ -205,17 +211,13 @@ impl Tokenizer {
         }
     }
 
-    fn is_normal_char(char: char, first: bool) -> bool {
+    /*fn is_normal_char(char: char, first: bool) -> bool {
+        !first ||
         (char >= 'a' && char <= 'z') ||
         (char >= 'A' && char <= 'Z') ||
         (char >= '0' && char <= '9') ||
-        char == '.' || char == '_' ||
-        (!first && (
-            char == '-' || char == ';' || char == '(' ||
-            char == ')' || char == '=' || char == '>' ||
-            char == '<' || char == ':'
-        ))
-    }
+        char == '.' || char == '_' || char == '='
+    }*/
 
     fn inc_tokens_offsets(mut tokens: Vec<Token>, offset: usize) -> Vec<Token> {
         for token in &mut tokens {

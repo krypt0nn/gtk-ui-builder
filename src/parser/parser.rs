@@ -38,7 +38,7 @@ impl Parser {
                 }
             }
 
-            // Components or properties definitions
+            // Components, events or properties definitions
             else if let Token::Other { value, .. } = &tokens[i] {
                 let class = value.clone();
 
@@ -85,14 +85,14 @@ impl Parser {
                                     PropertyValue::Text(text[..text.len() - 1].to_string())
                                 }
                             } else {
-                                let tree = match Parser::parse(&text[tokens[i + 1].get_begin()..tokens[j].get_end()]) {
+                                let children = match Parser::parse(&text[tokens[i + 1].get_begin()..tokens[j].get_end()]) {
                                     Ok(tree) => tree,
                                     Err(err) => return Err(err.offset(tokens[i + 1].get_begin()))
                                 };
 
-                                let tree = tree.root.children;
+                                let children = children.root.children;
 
-                                if tree.len() != 1 {
+                                if children.len() != 1 {
                                     return Err(ParseError::IncorrectPropertyDefinition {
                                         message: format!("Property value must be a single object, occured at offset {}", tokens[i].get_begin()),
                                         offset: tokens[i].get_begin()
@@ -100,7 +100,7 @@ impl Parser {
                                 }
 
                                 else {
-                                    match &tree[0] {
+                                    match &children[0] {
                                         Entry::Object(obj) => PropertyValue::Entry(obj.clone()),
                                         _ => {
                                             return Err(ParseError::IncorrectPropertyDefinition {
@@ -119,6 +119,45 @@ impl Parser {
                     else {
                         return Err(ParseError::IncorrectPropertyDefinition {
                             message: format!("Incorrect property definition at offset {}", tokens[i].get_begin()),
+                            offset: tokens[i].get_begin()
+                        });
+                    }
+                }
+
+                // Component event connection
+                // 
+                // clicked => { some code }
+                else if i + 1 < tokens.len() && tokens[i + 1].is_other_value("=>") {
+                    if i + 2 < tokens.len() {
+                        if let Token::CurlyBrackets { begin, end, .. } = tokens[i + 2] {
+                            // TODO: lazy brackets parsing. This will fix events definition errors
+
+                            if cfg!(feature = "rhai-events") {
+                                #[cfg(feature = "rhai-events")]
+                                tree.add_child(RhaiEvent::entry(class, text[begin + 1..end].to_string()));
+
+                                i += 2;
+                            }
+
+                            else {
+                                return Err(ParseError::IncorrectEventDefinition {
+                                    message: format!("Rhai feature is not enabled, occured at offset {}", tokens[i].get_begin()),
+                                    offset: tokens[i].get_begin()
+                                });
+                            }
+                        }
+
+                        else {
+                            return Err(ParseError::IncorrectEventDefinition {
+                                message: format!("Undefined event value at offset {}", tokens[i].get_begin()),
+                                offset: tokens[i].get_begin()
+                            });
+                        }
+                    }
+
+                    else {
+                        return Err(ParseError::IncorrectEventDefinition {
+                            message: format!("Incorrect event definition at offset {}", tokens[i].get_begin()),
                             offset: tokens[i].get_begin()
                         });
                     }
