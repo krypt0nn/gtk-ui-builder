@@ -138,6 +138,6 @@ Adw.ApplicationWindow window {
 
 This example requires `rhai-events` for parsing and `gtk-builder` for interpreting. Events are automatically applied by the `Builder` struct
 
-Author: [Nikita Podvirnyy](https://vk.com/technomindlp)
+Author: [Nikita Podvirnyy](https://github.com/krypt0nn)
 
 Licensed under [GNU GPL 3.0](LICENSE)
